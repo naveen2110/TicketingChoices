@@ -1,0 +1,286 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using static System.Console; 
+
+namespace FinalPractice
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            const string INPUT_FILE = "Tickets.txt";
+            const string RECEIPT_FILE = "Receipt.txt";
+            const string LOG_FILE = "Log.txt";
+            const char DELIM = ','; 
+
+            const string SENTINEL1 = "QUIT";
+            const string SENTINEL2 = "STOP";
+
+            string RecordIn;
+            string[] fields;
+            int count = 0;
+            int index = 0;
+            int row = 0;
+            int column = 0; 
+
+            string menu; 
+            string UserChoice;
+
+            double max; 
+            int TicketQuantity;
+            double TicketPrice=0;
+            string TicketCategory="0"; 
+             
+            double total;
+            double[] discounts = { 0, 0.2, 0.3 };
+            double[] DiscountLowLimits = {0, 200, 300 };
+            int sub; // to go through discount limits
+            double CustomerDiscount=0; 
+
+            FileStream InFile = new FileStream(INPUT_FILE, FileMode.Open, FileAccess.Read);
+            StreamReader reader = new StreamReader(InFile);
+            RecordIn = reader.ReadLine();
+
+            while (RecordIn != null && RecordIn != "")
+            {
+                ++count;
+                RecordIn = reader.ReadLine();
+
+            }
+                                 
+            InFile.Seek(0, SeekOrigin.Begin);
+
+            string[,] inventory = new string[count, 2];
+            double[] prices = new double[count];
+            RecordIn = reader.ReadLine();
+
+            while (RecordIn != null && RecordIn != "")
+            {
+                fields = RecordIn.Split(DELIM);
+                prices[index] = Convert.ToDouble(fields[1]);
+                inventory[index, 0] = fields[0];
+                inventory[index, 1] = fields[1];
+                ++index;
+                RecordIn = reader.ReadLine();
+                
+            }
+
+           
+            reader.Close();
+            InFile.Close();
+            
+
+            menu = String.Format("Enter your choice \n Choice 1: See options \n Choice 2: See highest ticket price \n" +
+               " Choice 3: Plaza Center \n Choice 4: Club \n Choice 5:Terrace Center \n Choice 6: Look for option \n"  +
+               " Choice 7: Check for prices between $10 to $50 \n or enter QUIT or STOP to quit the program");
+            WriteLine(menu);
+            UserChoice = ReadLine();
+
+            FileStream OutFile2 = new FileStream(LOG_FILE, FileMode.Append, FileAccess.Write);
+            StreamWriter appender = new StreamWriter(OutFile2);
+
+            FileStream OutFile1 = new FileStream(RECEIPT_FILE, FileMode.Create, FileAccess.Write);
+            StreamWriter writer = new StreamWriter(OutFile1);
+
+            while (!(UserChoice.ToUpper() == SENTINEL1 || UserChoice.ToUpper() == SENTINEL2))
+            {
+                switch (UserChoice)
+                {
+                    case "1":
+                        for (row = 0; row < inventory.GetLength(0); ++row)
+                        {
+                            for (column = 0; column < inventory.GetLength(1); ++column)
+                            {
+                                Write("{0} ", inventory[row, column]);
+                                appender.Write("{0} ", inventory[row, column]);
+                            }
+                            WriteLine();
+                            appender.WriteLine(); 
+
+                        }
+                        break;
+
+                    case "2":
+
+                        int i = 1;
+                        max = prices[0];
+                        for (i = 1; i < prices.Length; i++)
+                        {
+                            if (prices[i] > max)
+                            {
+                                max = prices[i];
+                            
+                            }
+                        }
+                        WriteLine("Highest Price is {0} ", max);
+                        appender. WriteLine("Highest Price is {0} ", max);
+                    break;
+                    
+                    case "3":
+                        
+                    for (row=0; row<inventory.GetLength(0);++row)
+                    {
+                        if (inventory[row, 0] == "Plaza Center")
+                        {
+                            TicketCategory = inventory[row, 0];
+                           TicketPrice = Convert.ToDouble(inventory[row, 1]);
+                        }
+                    }
+                        Write("Enter Quantity >>");
+                        TicketQuantity = Convert.ToInt32(ReadLine());
+
+
+
+                        total = (TicketQuantity * TicketPrice);
+
+                        
+                        for (sub = DiscountLowLimits.Length - 1; (sub >= 0) && (total < DiscountLowLimits[sub]); --sub)
+                        { }
+                        CustomerDiscount = discounts[sub];
+
+                        if (total > 200)
+                        {
+                            total = total - (total * CustomerDiscount);
+
+                        }
+
+                        WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                            TicketQuantity, CustomerDiscount);
+                        writer.WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                TicketQuantity, CustomerDiscount);
+                        appender.WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                TicketQuantity, CustomerDiscount);
+
+                        break;
+
+                    case "4":
+                        
+                    for (row = 0; row < inventory.GetLength(0); ++row)
+                    {
+                        if (inventory[row, 0] == "Club")
+                        {
+                            TicketCategory = inventory[row, 0];
+                            TicketPrice = Convert.ToDouble(inventory[row, 1]);
+                        }
+                    }
+                        Write("Enter Quantity >>");
+                        TicketQuantity = Convert.ToInt32(ReadLine());
+
+
+
+                        total = (TicketQuantity * TicketPrice);
+
+                        
+                        for (sub = DiscountLowLimits.Length - 1; (sub >= 0) && (total < DiscountLowLimits[sub]); --sub)
+                        { }
+                        CustomerDiscount = discounts[sub];
+
+                        if (total > 200)
+                        {
+                            total = total - (total * CustomerDiscount);
+
+                        }
+
+                        WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                            TicketQuantity, CustomerDiscount);
+                        writer.WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                TicketQuantity, CustomerDiscount);
+                        appender.WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                TicketQuantity, CustomerDiscount);
+
+                        break;
+                
+                    case "5":
+                        
+                    for (row = 0; row < inventory.GetLength(0); ++row)
+                    {
+                        if (inventory[row, 0] == "Terrace Center")
+                        {
+                            TicketCategory = inventory[row, 0];
+                            TicketPrice = Convert.ToDouble(inventory[row, 1]);
+                        }
+                    }
+                        Write("Enter Quantity >>");
+                        TicketQuantity = Convert.ToInt32(ReadLine());
+
+
+
+                        total = (TicketQuantity * TicketPrice);
+
+                        
+                        for (sub = DiscountLowLimits.Length - 1; (sub >= 0) && (total < DiscountLowLimits[sub]); --sub)
+                        { }
+                        CustomerDiscount = discounts[sub];
+
+                        if (total > 200)
+                        {
+                            total = total - (total * CustomerDiscount);
+
+                        }
+
+                        WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                            TicketQuantity, CustomerDiscount);
+                        writer.WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                TicketQuantity, CustomerDiscount);
+                        appender.WriteLine("Your total is {0} for choice {1} and quantity {2}, with discount {3}", total.ToString("C2"), TicketCategory,
+                TicketQuantity, CustomerDiscount);
+                        break;
+
+                    case "6":
+                    Write("Enter what you want to look for >> ");
+                    string search = ReadLine();
+                        for (row = 0; row < inventory.GetLength(0); ++row)
+                        {
+                            if (inventory[row, 0] ==search)
+                            {
+                                WriteLine("Found it {0}!!",inventory[row,0]);
+                                appender.WriteLine("Found it {0}!!", inventory[row, 0]);
+                            }
+                        
+                         }
+                    
+                    break;
+                    
+
+                    case "7":
+                        for (int f=0; f<prices.Length; f++)
+                        {
+                            if ((prices[f]>9) && (prices[f]< 51))
+                            {
+                            WriteLine("{0} {1} ", inventory[f, 0], inventory[f,1]);
+                               appender. WriteLine("{0} {1} ", inventory[f, 0], inventory[f, 1]);
+                            }
+                        }
+                    break;
+
+                    default:
+                        WriteLine("Wrong Input");
+                        break;
+
+                }
+
+                WriteLine(menu);
+                UserChoice = ReadLine();
+                    
+
+            
+            
+            
+
+             }
+
+            writer.Close();
+            OutFile1.Close();
+
+
+
+            appender.Close();
+            OutFile2.Close();
+
+        }
+    }
+}
